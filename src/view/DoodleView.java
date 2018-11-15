@@ -1,15 +1,20 @@
 package view;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
 public class DoodleView extends Application
@@ -77,6 +82,10 @@ public class DoodleView extends Application
 
         for (int i = 0; i < shapes.length; i++) {
             buttons[i] = getImageToggleButton(shapes[i]);
+            int finalI = i;
+            buttons[i].setOnAction(event -> {
+                System.out.println(shapes[finalI]);
+            });
         }
 
         buttons[0].setSelected(true);
@@ -166,9 +175,25 @@ public class DoodleView extends Application
         VBox box = new VBox();
 
         canvas = new Canvas();
+        GraphicsContext graphics = canvas.getGraphicsContext2D();
         canvas.setStyle("-fx-background-color: black");
         canvas.widthProperty().bind(box.widthProperty());
         canvas.heightProperty().bind(box.heightProperty());
+
+        graphics.setStroke(Color.GREEN);
+        graphics.setLineWidth(5);
+
+        final Point2D[] points = new Point2D[2];
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+            points[0] = new Point2D(event.getX(), event.getY());
+            points[1] = new Point2D(event.getX(), event.getY());
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+            graphics.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            points[1] = new Point2D(event.getX(), event.getY());
+            graphics.strokeLine(points[0].getX(), points[0].getY(), points[1].getX(), points[1].getY());
+        });
 
         box.getChildren().add(canvas);
 
