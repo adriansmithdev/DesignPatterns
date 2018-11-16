@@ -27,6 +27,7 @@ public class DoodleView extends Application
 
     //drawing on the canvas
     private Canvas canvas;
+    private GraphicsContext graphics;
 
     //selecting shapes
     private ToggleGroup shapeGroup;
@@ -175,11 +176,19 @@ public class DoodleView extends Application
         VBox box = new VBox();
 
         canvas = new Canvas();
-        GraphicsContext graphics = canvas.getGraphicsContext2D();
+        graphics = canvas.getGraphicsContext2D();
         canvas.setStyle("-fx-background-color: black");
         canvas.widthProperty().bind(box.widthProperty());
         canvas.heightProperty().bind(box.heightProperty());
 
+        addEventHandlersToCanvas();
+
+        box.getChildren().add(canvas);
+
+        return box;
+    }
+
+    private void addEventHandlersToCanvas() {
         graphics.setStroke(Color.GREEN);
         graphics.setLineWidth(5);
 
@@ -195,9 +204,11 @@ public class DoodleView extends Application
             graphics.strokeLine(points[0].getX(), points[0].getY(), points[1].getX(), points[1].getY());
         });
 
-        box.getChildren().add(canvas);
-
-        return box;
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+            graphics.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            points[1] = new Point2D(event.getX(), event.getY());
+            graphics.strokeLine(points[0].getX(), points[0].getY(), points[1].getX(), points[1].getY());
+        });
     }
 
     private MenuBar buildMenu()
