@@ -17,6 +17,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 public class DoodleView extends Application {
     public static final int WIN_WIDTH = 1000;
     public static final int WIN_HEIGHT = 600;
@@ -195,8 +200,11 @@ public class DoodleView extends Application {
         graphics.setLineWidth(5);
 
         final Point2D[] points = new Point2D[2];
+        List<Point2D> point2DList = new ArrayList<>();
+
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
             points[0] = new Point2D(event.getX(), event.getY());
+            point2DList.add(points[0]);
             points[1] = new Point2D(event.getX(), event.getY());
         });
 
@@ -204,33 +212,89 @@ public class DoodleView extends Application {
             graphics.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
             points[1] = new Point2D(event.getX(), event.getY());
             if (selectedShape.equals("Line")) {
-                graphics.strokeLine(points[0].getX(), points[0].getY(), points[1].getX(), points[1].getY());
+                drawLine(points);
             } else if (selectedShape.equals("Rectangle")) {
-                double width = points[1].getX() - points[0].getX();
-                double height = points[1].getY() - points[0].getY();
-                if (width < 0 && height < 0) {
-                    width = Math.abs(width);
-                    height = Math.abs(height);
-                    graphics.fillRect(points[0].getX() - width, points[0].getY() - height, width, height);
-                    graphics.strokeRect(points[0].getX() - width, points[0].getY() - height, width, height);
-                } else if (width < 0) {
-                    width = Math.abs(width);
-                    graphics.fillRect(points[0].getX() - width, points[0].getY(), width, height);
-                    graphics.strokeRect(points[0].getX() - width, points[0].getY(), width, height);
-                } else if (height < 0) {
-                    height = Math.abs(height);
-                    graphics.fillRect(points[0].getX(), points[0].getY() - height, width, height);
-                    graphics.strokeRect(points[0].getX(), points[0].getY() - height, width, height);
-                } else {
-                    graphics.fillRect(points[0].getX(), points[0].getY(), width, height);
-                    graphics.strokeRect(points[0].getX(), points[0].getY(), width, height);
-                }
+                drawRectangle(points);
+            } else if (selectedShape.equals("Oval")) {
+                drawOval(points);
+            } else if(selectedShape.equals("Squiggle")){
+                point2DList.add(points[1]);
+                drawSquiggle(point2DList);
             }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+            point2DList.clear();
         });
 
         box.getChildren().add(canvas);
 
         return box;
+    }
+
+    private void drawSquiggle(List<Point2D> points)
+    {
+        double[] x, y;
+        x = new double[points.size()];
+        y = new double[points.size()];
+
+        for(int i = 0; i < points.size(); i++){
+            Point2D point = points.get(i);
+            x[i] = point.getX();
+            y[i] = point.getY();
+        }
+
+        graphics.strokePolyline(x, y, points.size());
+    }
+
+    private void drawLine(Point2D[] points)
+    {
+        graphics.strokeLine(points[0].getX(), points[0].getY(), points[1].getX(), points[1].getY());
+    }
+
+    private void drawRectangle(Point2D[] points)
+    {
+        double width = points[1].getX() - points[0].getX();
+        double height = points[1].getY() - points[0].getY();
+        if (width < 0 && height < 0) {
+            width = Math.abs(width);
+            height = Math.abs(height);
+            graphics.fillRect(points[0].getX() - width, points[0].getY() - height, width, height);
+            graphics.strokeRect(points[0].getX() - width, points[0].getY() - height, width, height);
+        } else if (width < 0) {
+            width = Math.abs(width);
+            graphics.fillRect(points[0].getX() - width, points[0].getY(), width, height);
+            graphics.strokeRect(points[0].getX() - width, points[0].getY(), width, height);
+        } else if (height < 0) {
+            height = Math.abs(height);
+            graphics.fillRect(points[0].getX(), points[0].getY() - height, width, height);
+            graphics.strokeRect(points[0].getX(), points[0].getY() - height, width, height);
+        } else {
+            graphics.fillRect(points[0].getX(), points[0].getY(), width, height);
+            graphics.strokeRect(points[0].getX(), points[0].getY(), width, height);
+        }
+    }
+
+    private void drawOval(Point2D[] points){
+        double width = points[1].getX() - points[0].getX();
+        double height = points[1].getY() - points[0].getY();
+        if (width < 0 && height < 0) {
+            width = Math.abs(width);
+            height = Math.abs(height);
+            graphics.fillOval(points[0].getX() - width, points[0].getY() - height, width, height);
+            graphics.strokeOval(points[0].getX() - width, points[0].getY() - height, width, height);
+        } else if (width < 0) {
+            width = Math.abs(width);
+            graphics.fillOval(points[0].getX() - width, points[0].getY(), width, height);
+            graphics.strokeOval(points[0].getX() - width, points[0].getY(), width, height);
+        } else if (height < 0) {
+            height = Math.abs(height);
+            graphics.fillOval(points[0].getX(), points[0].getY() - height, width, height);
+            graphics.strokeOval(points[0].getX(), points[0].getY() - height, width, height);
+        } else {
+            graphics.fillOval(points[0].getX(), points[0].getY(), width, height);
+            graphics.strokeOval(points[0].getX(), points[0].getY(), width, height);
+        }
     }
 
     private MenuBar buildMenu()
