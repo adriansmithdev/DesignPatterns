@@ -1,7 +1,6 @@
 package view;
 
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,13 +13,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import view.DrawingFacade.ShapeType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
+
+import static view.DrawingFacade.ShapeType.*;
 
 public class DoodleView extends Application {
     public static final int WIN_WIDTH = 1000;
@@ -30,12 +29,12 @@ public class DoodleView extends Application {
     public static final int MIN_STROKE = 1;
 
     //drawing on the canvas
-    private Canvas canvas;
-    private GraphicsContext graphics;
+    private DrawingFacade canvas;
+    private ObservableList shapeHistory;
 
     //selecting shapes
     private ToggleGroup shapeGroup;
-    private String selectedShape;
+    private ShapeType selectedShape;
     //shape settings
     private ColorPicker fillColorPicker = new ColorPicker();
     private ColorPicker strokeColorPicker = new ColorPicker();
@@ -81,23 +80,20 @@ public class DoodleView extends Application {
         HBox shapesPanel = new HBox();
         shapesPanel.setId("toolbar-shapes");
 
-        String[] shapes = {"Line", "Oval", "Rectangle", "Squiggle"};
+        ShapeType[] shapes = {LINE, OVAL, RECTANGLE, SQUIGGLE};
         ToggleButton[] buttons = new ToggleButton[shapes.length];
         shapeGroup = new ToggleGroup();
 
         for (int i = 0; i < shapes.length; i++) {
-            buttons[i] = getImageToggleButton(shapes[i]);
-            buttons[i].setId(shapes[i]);
-        }
-
-        for (ToggleButton button : buttons) {
-            button.setOnAction(event -> {
-                selectedShape = button.getId();
+            buttons[i] = getImageToggleButton(shapes[i].toString());
+            int finalI = i;
+            buttons[i].setOnAction(event -> {
+                selectedShape = shapes[finalI];
             });
         }
 
         buttons[0].setSelected(true);
-        selectedShape = "Line";
+        selectedShape = LINE;
         shapeGroup.getToggles().addAll(buttons);
         shapesPanel.getChildren().addAll(buttons);
 
@@ -183,48 +179,40 @@ public class DoodleView extends Application {
     {
         VBox box = new VBox();
 
-        canvas = new Canvas();
-        graphics = canvas.getGraphicsContext2D();
-        canvas.setStyle("-fx-background-color: black");
-        canvas.widthProperty().bind(box.widthProperty());
-        canvas.heightProperty().bind(box.heightProperty());
+        canvas = new DrawingFacade();
 
+        canvas.init(box);
         strokeColorPicker.setOnAction(event -> {
-            graphics.setStroke(strokeColorPicker.getValue());
+            canvas.setStroke(strokeColorPicker.getValue());
         });
 
         fillColorPicker.setOnAction(event -> {
-            graphics.setFill(fillColorPicker.getValue());
+            canvas.setFill(fillColorPicker.getValue());
         });
 
-        graphics.setLineWidth(5);
+        canvas.setLineWidth((int) strokeSlider.getValue());
 
-        final Point2D[] points = new Point2D[2];
-        List<Point2D> point2DList = new ArrayList<>();
+        List<Point2D> points = new ArrayList<>();
 
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
-            points[0] = new Point2D(event.getX(), event.getY());
-            point2DList.add(points[0]);
-            points[1] = new Point2D(event.getX(), event.getY());
+            points.add(new Point2D(event.getX(), event.getY()));
+            points.add(new Point2D(event.getX(), event.getY()));
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            graphics.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            points[1] = new Point2D(event.getX(), event.getY());
-            if (selectedShape.equals("Line")) {
-                drawLine(points);
-            } else if (selectedShape.equals("Rectangle")) {
-                drawRectangle(points);
-            } else if (selectedShape.equals("Oval")) {
-                drawOval(points);
-            } else if(selectedShape.equals("Squiggle")){
-                point2DList.add(points[1]);
-                drawSquiggle(point2DList);
+            canvas.clear();
+
+            if(selectedShape == SQUIGGLE){
+                points.add(new Point2D(event.getX(), event.getY()));
+            }else {
+                points.set(1, new Point2D(event.getX(), event.getY()));
             }
+
+            canvas.drawShape(selectedShape, points, filledCheckbox.isSelected());
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
-            point2DList.clear();
+            points.clear();
         });
 
         box.getChildren().add(canvas);
@@ -232,70 +220,8 @@ public class DoodleView extends Application {
         return box;
     }
 
-    private void drawSquiggle(List<Point2D> points)
-    {
-        double[] x, y;
-        x = new double[points.size()];
-        y = new double[points.size()];
 
-        for(int i = 0; i < points.size(); i++){
-            Point2D point = points.get(i);
-            x[i] = point.getX();
-            y[i] = point.getY();
-        }
 
-        graphics.strokePolyline(x, y, points.size());
-    }
-
-    private void drawLine(Point2D[] points)
-    {
-        graphics.strokeLine(points[0].getX(), points[0].getY(), points[1].getX(), points[1].getY());
-    }
-
-    private void drawRectangle(Point2D[] points)
-    {
-        double width = points[1].getX() - points[0].getX();
-        double height = points[1].getY() - points[0].getY();
-        if (width < 0 && height < 0) {
-            width = Math.abs(width);
-            height = Math.abs(height);
-            graphics.fillRect(points[0].getX() - width, points[0].getY() - height, width, height);
-            graphics.strokeRect(points[0].getX() - width, points[0].getY() - height, width, height);
-        } else if (width < 0) {
-            width = Math.abs(width);
-            graphics.fillRect(points[0].getX() - width, points[0].getY(), width, height);
-            graphics.strokeRect(points[0].getX() - width, points[0].getY(), width, height);
-        } else if (height < 0) {
-            height = Math.abs(height);
-            graphics.fillRect(points[0].getX(), points[0].getY() - height, width, height);
-            graphics.strokeRect(points[0].getX(), points[0].getY() - height, width, height);
-        } else {
-            graphics.fillRect(points[0].getX(), points[0].getY(), width, height);
-            graphics.strokeRect(points[0].getX(), points[0].getY(), width, height);
-        }
-    }
-
-    private void drawOval(Point2D[] points){
-        double width = points[1].getX() - points[0].getX();
-        double height = points[1].getY() - points[0].getY();
-        if (width < 0 && height < 0) {
-            width = Math.abs(width);
-            height = Math.abs(height);
-            graphics.fillOval(points[0].getX() - width, points[0].getY() - height, width, height);
-            graphics.strokeOval(points[0].getX() - width, points[0].getY() - height, width, height);
-        } else if (width < 0) {
-            width = Math.abs(width);
-            graphics.fillOval(points[0].getX() - width, points[0].getY(), width, height);
-            graphics.strokeOval(points[0].getX() - width, points[0].getY(), width, height);
-        } else if (height < 0) {
-            height = Math.abs(height);
-            graphics.fillOval(points[0].getX(), points[0].getY() - height, width, height);
-            graphics.strokeOval(points[0].getX(), points[0].getY() - height, width, height);
-        } else {
-            graphics.fillOval(points[0].getX(), points[0].getY(), width, height);
-            graphics.strokeOval(points[0].getX(), points[0].getY(), width, height);
-        }
-    }
 
     private MenuBar buildMenu()
     {
@@ -329,7 +255,7 @@ public class DoodleView extends Application {
     private void drawMenu(Menu draw)
     {
         Menu shapesMenu = new Menu("Shape Tools");
-        MenuItem[] shapes = {new MenuItem("Line"), new MenuItem("Oval"),
+        MenuItem[] shapes = {new MenuItem("LineFactory"), new MenuItem("Oval"),
                 new MenuItem("Rectangle"), new MenuItem("Squiggle")};
         shapesMenu.getItems().addAll(shapes);
         draw.getItems().add(shapesMenu);

@@ -1,4 +1,4 @@
 package model;
 
-public class Oval extends ShapeFactory {
+public class Oval {
 }

@@ -1,4 +1,4 @@
 package model;
 
-public class Rectangle extends ShapeFactory {
+public class Rectangle {
 }
