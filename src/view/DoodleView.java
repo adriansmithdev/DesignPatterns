@@ -197,6 +197,10 @@ public class DoodleView extends Application implements IObserver {
             canvas.setFill(fillColorPicker.getValue());
         });
 
+        strokeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            canvas.setLineWidth(newValue.intValue());
+        }));
+
         canvas.setLineWidth((int) strokeSlider.getValue());
 
         List<Point2D> points = new ArrayList<>();
