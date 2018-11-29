@@ -4,16 +4,39 @@ import controller.Controller;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Observable;
+import observer.Observable;
 import java.util.Stack;
 
-public class Model {
-    Controller controller;
-    Stack<Shape> shapeHistory;
-    Stack<Shape> undoHistory;
+public class Model extends Observable{
+    private Controller controller;
+    private Stack<Shape> shapeHistory;
+    private Stack<Shape> undoHistory;
 
-    public Model(){
-        controller = new Controller();
+    public void addShape(Shape shape){
+        shapeHistory.push(shape);
+        undoHistory.clear();
+        notifyObservers(Change.ADD, shape);
+    }
+
+    public void redo(){
+        Shape shape = undoHistory.pop();
+        shapeHistory.push(shape);
+
+        notifyObservers(Change.ADD, shape);
+    }
+
+    public void removeShape(){
+        Shape shape = shapeHistory.pop();
+        undoHistory.push(shape);
+        notifyObservers(Change.REMOVE, shape);
+    }
+
+    public void getShape(Shape shape){
+        notifyObservers(Change.RETRIEVE, shape);
+    }
+
+    public Model()
+    {
         shapeHistory = new Stack<>();
         undoHistory = new Stack<>();
     }
@@ -22,8 +45,9 @@ public class Model {
         return Collections.unmodifiableList(shapeHistory);
     }
 
-    public void addShape(Observable o)
-    {
-
+    public enum Change{
+        ADD,
+        REMOVE,
+        RETRIEVE
     }
 }

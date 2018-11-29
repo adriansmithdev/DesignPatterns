@@ -1,4 +1,10 @@
 package model;
 
-public class Squiggle {
+import static view.DrawingFacade.ShapeType.SQUIGGLE;
+
+public class Squiggle extends Shape{
+    public Squiggle()
+    {
+        super(SQUIGGLE);
+    }
 }

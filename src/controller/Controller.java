@@ -2,31 +2,31 @@ package controller;
 
 import model.Model;
 import model.Shape;
+import view.DoodleView;
 
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
-public class Controller implements Observer {
+public class Controller{
 
     Model model;
+    DoodleView view;
 
-    public Controller(){
+    public Controller(DoodleView view){
         model = new Model();
-    }
-
-    @Override
-    public void update(Observable o, Object arg)
-    {
-        model.addShape(o);
+        this.view = view;
+        model.addObserver(view);
     }
 
     public List<Shape> getShapes(){
         return model.getShapes();
     }
 
-    public void setShapeHistory() {
-//        update();
-
+    public void addShape(Shape shape){
+        model.addShape(shape);
     }
+
+    public void removeShape(){
+        model.removeShape();
+    }
+
+
 }

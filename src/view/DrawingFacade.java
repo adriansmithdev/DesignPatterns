@@ -5,10 +5,12 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import model.Shape;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class DrawingFacade extends Canvas {
     // Facade over Graphics Context to make drawing easier
@@ -55,6 +57,13 @@ public class DrawingFacade extends Canvas {
     public void clear()
     {
         graphics.clearRect(0, 0, this.getWidth(), this.getHeight());
+    }
+
+    public void drawList(List<Shape> unModifiableShapeList)
+    {
+        for(Shape shape : unModifiableShapeList){
+            drawingShapes.get(shape.getType()).draw(shape.getPoints(), shape.isFilled());
+        }
     }
 
 

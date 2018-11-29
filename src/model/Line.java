@@ -1,13 +1,12 @@
 package model;
 
-import java.util.Observable;
-import java.util.Observer;
 
-public class Line implements Observer {
+import static view.DrawingFacade.ShapeType.LINE;
 
-    @Override
-    public void update(Observable o, Object arg)
+public class Line extends Shape{
+
+    public Line()
     {
-
+        super(LINE);
     }
 }

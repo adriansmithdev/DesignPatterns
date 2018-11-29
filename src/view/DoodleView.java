@@ -1,11 +1,11 @@
 package view;
 
+import controller.Controller;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -14,14 +14,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import model.Model;
+import model.Shape;
+import observer.IObserver;
+import observer.Observable;
 import view.DrawingFacade.ShapeType;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static model.Model.*;
 import static view.DrawingFacade.ShapeType.*;
 
-public class DoodleView extends Application {
+public class DoodleView extends Application implements IObserver {
     public static final int WIN_WIDTH = 1000;
     public static final int WIN_HEIGHT = 600;
     public static final int SHAPE_ICON_SIZE = 20;
@@ -30,7 +35,9 @@ public class DoodleView extends Application {
 
     //drawing on the canvas
     private DrawingFacade canvas;
-    private ObservableList shapeHistory = (ObservableList) new Object();
+
+    Controller controller = new Controller(this);
+    List<Shape> unModifiableShapeList = null;
 
     //selecting shapes
     private ToggleGroup shapeGroup;
@@ -181,7 +188,6 @@ public class DoodleView extends Application {
 
         canvas = new DrawingFacade();
 
-
         canvas.init(box);
         strokeColorPicker.setOnAction(event -> {
             canvas.setStroke(strokeColorPicker.getValue());
@@ -271,5 +277,14 @@ public class DoodleView extends Application {
     {
         MenuItem[] items = {new MenuItem("About")};
         about.getItems().addAll(items);
+    }
+
+    @Override
+    public void update(Observable observable, Object... arguments)
+    {
+        Change change = (Change) arguments[0];
+
+        unModifiableShapeList = controller.getShapes();
+        canvas.drawList(unModifiableShapeList);
     }
 }
