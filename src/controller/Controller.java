@@ -1,25 +1,31 @@
 package controller;
 
+import model.Model;
+import model.Shape;
+
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
 public class Controller implements Observer {
 
-    String shapeHistory = "";
+    Model model;
+
+    public Controller(){
+        model = new Model();
+    }
 
     @Override
     public void update(Observable o, Object arg)
     {
-        // model.addShape
+        model.addShape(o);
     }
 
-    public List<Object> getShapes(){
-        return null;
+    public List<Shape> getShapes(){
+        return model.getShapes();
     }
 
     public void setShapeHistory() {
-        shapeHistory = "";
 //        update();
 
     }

@@ -30,7 +30,7 @@ public class DoodleView extends Application {
 
     //drawing on the canvas
     private DrawingFacade canvas;
-    private ObservableList shapeHistory;
+    private ObservableList shapeHistory = (ObservableList) new Object();
 
     //selecting shapes
     private ToggleGroup shapeGroup;
@@ -181,6 +181,7 @@ public class DoodleView extends Application {
 
         canvas = new DrawingFacade();
 
+
         canvas.init(box);
         strokeColorPicker.setOnAction(event -> {
             canvas.setStroke(strokeColorPicker.getValue());
@@ -207,6 +208,8 @@ public class DoodleView extends Application {
             }else {
                 points.set(1, new Point2D(event.getX(), event.getY()));
             }
+
+
 
             canvas.drawShape(selectedShape, points, filledCheckbox.isSelected());
         });
