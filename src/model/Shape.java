@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class Shape {
+public class Shape {
     private ShapeType type;
     private List<Point2D> points;
     private boolean isFilled;

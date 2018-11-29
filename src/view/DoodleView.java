@@ -37,7 +37,7 @@ public class DoodleView extends Application implements IObserver {
     private DrawingFacade canvas;
 
     Controller controller = new Controller(this);
-    List<Shape> unModifiableShapeList = null;
+    List<Shape> unModifiableShapeList = new ArrayList<>();
 
     //selecting shapes
     private ToggleGroup shapeGroup;
@@ -201,7 +201,7 @@ public class DoodleView extends Application implements IObserver {
             canvas.setLineWidth(newValue.intValue());
         }));
 
-        canvas.setLineWidth((int) strokeSlider.getValue());
+        canvas.setLineWidth(strokeSlider.valueProperty().intValue());
 
         List<Point2D> points = new ArrayList<>();
 
@@ -213,18 +213,18 @@ public class DoodleView extends Application implements IObserver {
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             canvas.clear();
 
-            if(selectedShape == SQUIGGLE){
+            if (selectedShape == SQUIGGLE) {
                 points.add(new Point2D(event.getX(), event.getY()));
-            }else {
+            } else {
                 points.set(1, new Point2D(event.getX(), event.getY()));
             }
 
-
-
+            canvas.drawList(unModifiableShapeList);
             canvas.drawShape(selectedShape, points, filledCheckbox.isSelected());
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+            controller.addShape(new Shape(selectedShape, points, filledCheckbox.isSelected()));
             points.clear();
         });
 
@@ -232,8 +232,6 @@ public class DoodleView extends Application implements IObserver {
 
         return box;
     }
-
-
 
 
     private MenuBar buildMenu()
@@ -274,6 +272,7 @@ public class DoodleView extends Application implements IObserver {
         draw.getItems().add(shapesMenu);
 
         MenuItem clear = new MenuItem("Clear Shapes");
+        clear.setOnAction(event -> controller.clearHistory());
         draw.getItems().add(clear);
     }
 
@@ -286,8 +285,6 @@ public class DoodleView extends Application implements IObserver {
     @Override
     public void update(Observable observable, Object... arguments)
     {
-        Change change = (Change) arguments[0];
-
         unModifiableShapeList = controller.getShapes();
         canvas.drawList(unModifiableShapeList);
     }

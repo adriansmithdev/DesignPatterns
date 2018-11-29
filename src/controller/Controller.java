@@ -29,4 +29,8 @@ public class Controller{
     }
 
 
+    public void clearHistory()
+    {
+        model.clearHistory();
+    }
 }

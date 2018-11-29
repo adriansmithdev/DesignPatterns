@@ -45,6 +45,13 @@ public class Model extends Observable{
         return Collections.unmodifiableList(shapeHistory);
     }
 
+    public void clearHistory()
+    {
+        shapeHistory.clear();
+        undoHistory.clear();
+        notifyObservers();
+    }
+
     public enum Change{
         ADD,
         REMOVE,
