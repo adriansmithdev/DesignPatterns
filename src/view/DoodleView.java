@@ -12,6 +12,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.Shape;
 import observer.IObserver;
@@ -300,12 +302,7 @@ public class DoodleView extends Application implements IObserver {
                 selectedShape = shapeTypes[finalI];
             });
         }
-        for(MenuItem item : shapes){
-            item.setOnAction(event -> {
-                shapeGroup.selectToggle(shapeGroup.getToggles().get(0));
 
-            });
-        }
         draw.getItems().add(shapesMenu);
 
         MenuItem clear = new MenuItem("Clear Shapes");
@@ -316,6 +313,16 @@ public class DoodleView extends Application implements IObserver {
     private void help(Menu about)
     {
         MenuItem[] items = {new MenuItem("About")};
+        items[0].setOnAction(event -> {
+            Stage dialog = new Stage();
+            VBox box = new VBox();
+            Text text = new Text("Paint Program\n\n Adrian Smith\n Kyle Johnson");
+            box.getChildren().add(text);
+            dialog.setScene(new Scene(box, 200, 200));
+            dialog.initOwner(stage);
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.showAndWait();
+        });
         about.getItems().addAll(items);
     }
 
