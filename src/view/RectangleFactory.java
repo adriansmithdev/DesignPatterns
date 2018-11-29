@@ -1,6 +1,8 @@
 package view;
 
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
+import model.Shape;
 
 import java.util.List;
 
@@ -11,9 +13,10 @@ public class RectangleFactory extends ShapeFactory {
     }
 
     @Override
-    public void draw(List<Point2D> points, boolean isFilled)
+    public void draw(Shape shape)
     {
-        drawRectangle(points, isFilled);
+        setDrawStyles(shape);
+        drawRectangle(shape.getPoints(), shape.isFilled());
     }
 
     private void drawRectangle(List<Point2D> points, boolean isFilled)

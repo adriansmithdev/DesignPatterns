@@ -1,6 +1,7 @@
 package view;
 
 import javafx.geometry.Point2D;
+import model.Shape;
 
 import java.util.List;
 
@@ -11,9 +12,10 @@ public class SquiggleFactory extends ShapeFactory {
     }
 
     @Override
-    public void draw(List<Point2D> points, boolean isFilled)
+    public void draw(Shape shape)
     {
-        drawSquiggle(points, isFilled);
+        setDrawStyles(shape);
+        drawSquiggle(shape.getPoints(), shape.isFilled());
     }
 
     private void drawSquiggle(List<Point2D> points, boolean isFilled)

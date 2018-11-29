@@ -17,7 +17,8 @@ public class DrawingFacade extends Canvas {
     protected GraphicsContext graphics;
     private Map<ShapeType, ShapeFactory> drawingShapes;
 
-    public DrawingFacade(){
+    public DrawingFacade()
+    {
         super();
         this.graphics = this.getGraphicsContext2D();
 
@@ -29,24 +30,36 @@ public class DrawingFacade extends Canvas {
         drawingShapes.put(ShapeType.SQUIGGLE, new SquiggleFactory(this));
     }
 
-    public void init(VBox box){
+    public void init(VBox box)
+    {
         this.setStyle("-fx-background-color: black");
         this.widthProperty().bind(box.widthProperty());
         this.heightProperty().bind(box.heightProperty());
     }
 
-    public void drawShape(ShapeType shape, List<Point2D> points, boolean isFilled)
+    public void drawShape(Shape shape)
     {
-        drawingShapes.get(shape).draw(points, isFilled);
+        drawingShapes.get(shape.getType()).draw(shape);
     }
 
-    public void setFill(Color fillColor){
+    public void setFillColor(Color fillColor)
+    {
         graphics.setFill(fillColor);
     }
 
-    public void setStroke(Color strokeColor)
+    public Color getFillColor()
+    {
+        return (Color) graphics.getFill();
+    }
+
+    public void setStrokeColor(Color strokeColor)
     {
         graphics.setStroke(strokeColor);
+    }
+
+    public Color getStrokeColor()
+    {
+        return (Color) graphics.getStroke();
     }
 
     public void setLineWidth(int strokeWidth)
@@ -54,20 +67,26 @@ public class DrawingFacade extends Canvas {
         graphics.setLineWidth(strokeWidth);
     }
 
+    public int getLineWidth()
+    {
+        return (int) graphics.getLineWidth();
+    }
+
     public void clear()
     {
         graphics.clearRect(0, 0, this.getWidth(), this.getHeight());
     }
 
-    public void drawList(List<Shape> unModifiableShapeList)
+    public void drawList(List<Shape> unmodShapeList)
     {
-        for(Shape shape : unModifiableShapeList){
-            drawingShapes.get(shape.getType()).draw(shape.getPoints(), shape.isFilled());
+        clear();
+        for (Shape shape : unmodShapeList) {
+            drawingShapes.get(shape.getType()).draw(shape);
         }
     }
 
 
-    public enum ShapeType{
+    public enum ShapeType {
         LINE,
         OVAL,
         RECTANGLE,

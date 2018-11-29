@@ -1,6 +1,8 @@
 package view;
 
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
+import model.Shape;
 
 import java.util.List;
 
@@ -11,9 +13,10 @@ public class LineFactory extends ShapeFactory {
     }
 
     @Override
-    public void draw(List<Point2D> points, boolean isFilled)
+    public void draw(Shape shape)
     {
-        drawLine(points);
+        setDrawStyles(shape);
+        drawLine(shape.getPoints());
     }
 
     private void drawLine(List<Point2D> points)

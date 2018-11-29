@@ -1,6 +1,8 @@
 package view;
 
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
+import model.Shape;
 
 import java.util.List;
 
@@ -12,9 +14,10 @@ public class OvalFactory extends ShapeFactory {
     }
 
     @Override
-    public void draw(List<Point2D> points, boolean isFilled)
+    public void draw(Shape shape)
     {
-        drawOval(points, isFilled);
+        setDrawStyles(shape);
+        drawOval(shape.getPoints(), shape.isFilled());
     }
 
     private void drawOval(List<Point2D> points, boolean isFilled)

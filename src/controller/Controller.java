@@ -33,4 +33,9 @@ public class Controller{
     {
         model.clearHistory();
     }
+
+    public void redo()
+    {
+        model.redo();
+    }
 }

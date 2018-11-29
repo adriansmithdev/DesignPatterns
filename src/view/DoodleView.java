@@ -2,7 +2,6 @@ package view;
 
 import controller.Controller;
 import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,7 +13,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import model.Model;
 import model.Shape;
 import observer.IObserver;
 import observer.Observable;
@@ -23,7 +21,6 @@ import view.DrawingFacade.ShapeType;
 import java.util.ArrayList;
 import java.util.List;
 
-import static model.Model.*;
 import static view.DrawingFacade.ShapeType.*;
 
 public class DoodleView extends Application implements IObserver {
@@ -36,8 +33,8 @@ public class DoodleView extends Application implements IObserver {
     //drawing on the canvas
     private DrawingFacade canvas;
 
-    Controller controller = new Controller(this);
-    List<Shape> unModifiableShapeList = new ArrayList<>();
+    private Controller controller = new Controller(this);
+    private List<Shape> unmodShapeList = new ArrayList<>();
 
     //selecting shapes
     private ToggleGroup shapeGroup;
@@ -48,9 +45,12 @@ public class DoodleView extends Application implements IObserver {
     private Slider strokeSlider;
     private CheckBox filledCheckbox;
 
+    private Stage stage;
+
     @Override
     public void start(Stage stage)
     {
+        this.stage = stage;
         stage.setTitle("Doodle Program");
         stage.setScene(getPrimaryScene());
         stage.show();
@@ -97,6 +97,7 @@ public class DoodleView extends Application implements IObserver {
             buttons[i].setOnAction(event -> {
                 selectedShape = shapes[finalI];
             });
+
         }
 
         buttons[0].setSelected(true);
@@ -155,6 +156,9 @@ public class DoodleView extends Application implements IObserver {
         for (int i = 0; i < edits.length; i++) {
             buttons[i] = getImageButton(edits[i]);
         }
+
+        buttons[0].setOnAction(event -> controller.removeShape());
+        buttons[1].setOnAction(event -> controller.redo());
         editPanel.getChildren().addAll(buttons);
 
         return editPanel;
@@ -190,11 +194,11 @@ public class DoodleView extends Application implements IObserver {
 
         canvas.init(box);
         strokeColorPicker.setOnAction(event -> {
-            canvas.setStroke(strokeColorPicker.getValue());
+            canvas.setStrokeColor(strokeColorPicker.getValue());
         });
 
         fillColorPicker.setOnAction(event -> {
-            canvas.setFill(fillColorPicker.getValue());
+            canvas.setFillColor(fillColorPicker.getValue());
         });
 
         strokeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
@@ -203,6 +207,15 @@ public class DoodleView extends Application implements IObserver {
 
         canvas.setLineWidth(strokeSlider.valueProperty().intValue());
 
+        addEventsToCanvas();
+
+        box.getChildren().add(canvas);
+
+        return box;
+    }
+
+    private void addEventsToCanvas()
+    {
         List<Point2D> points = new ArrayList<>();
 
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
@@ -211,26 +224,31 @@ public class DoodleView extends Application implements IObserver {
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-            canvas.clear();
-
             if (selectedShape == SQUIGGLE) {
                 points.add(new Point2D(event.getX(), event.getY()));
             } else {
                 points.set(1, new Point2D(event.getX(), event.getY()));
             }
 
-            canvas.drawList(unModifiableShapeList);
-            canvas.drawShape(selectedShape, points, filledCheckbox.isSelected());
+            canvas.drawList(unmodShapeList);
+
+            canvas.setStrokeColor(strokeColorPicker.getValue());
+            canvas.setFillColor(fillColorPicker.getValue());
+            canvas.setLineWidth(strokeSlider.valueProperty().intValue());
+            Shape shape = new Shape(selectedShape, canvas.getLineWidth(), canvas.getStrokeColor(), canvas.getFillColor(), points, filledCheckbox.isSelected());
+            canvas.drawShape(shape);
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
-            controller.addShape(new Shape(selectedShape, points, filledCheckbox.isSelected()));
+            List<Point2D> pointsClone = new ArrayList<>();
+            for(Point2D point : points){
+                pointsClone.add(new Point2D(point.getX(), point.getY()));
+            }
+
+            Shape shape = new Shape(selectedShape, canvas.getLineWidth(), canvas.getStrokeColor(), canvas.getFillColor(), pointsClone, filledCheckbox.isSelected());
+            controller.addShape(shape);
             points.clear();
         });
-
-        box.getChildren().add(canvas);
-
-        return box;
     }
 
 
@@ -254,21 +272,40 @@ public class DoodleView extends Application implements IObserver {
     private void fileMenu(Menu file)
     {
         MenuItem[] items = {new MenuItem("Quit")};
+        items[0].setOnAction(event -> stage.close());
         file.getItems().addAll(items);
     }
 
     private void editMenu(Menu edit)
     {
         MenuItem[] items = {new MenuItem("Undo"), new MenuItem("Redo")};
+        items[0].setOnAction(event -> controller.removeShape());
+        items[1].setOnAction(event -> controller.redo());
         edit.getItems().addAll(items);
     }
 
     private void drawMenu(Menu draw)
     {
         Menu shapesMenu = new Menu("Shape Tools");
-        MenuItem[] shapes = {new MenuItem("LineFactory"), new MenuItem("Oval"),
-                new MenuItem("Rectangle"), new MenuItem("Squiggle")};
+        ShapeType[] shapeTypes = {LINE, OVAL, RECTANGLE, SQUIGGLE};
+        MenuItem[] shapes = {new MenuItem(LINE.toString()), new MenuItem(OVAL.toString()),
+                new MenuItem(RECTANGLE.toString()), new MenuItem(SQUIGGLE.toString())};
         shapesMenu.getItems().addAll(shapes);
+
+
+        for(int i = 0; i < shapes.length; i++){
+            int finalI = i;
+            shapes[i].setOnAction(event -> {
+                shapeGroup.selectToggle(shapeGroup.getToggles().get(finalI));
+                selectedShape = shapeTypes[finalI];
+            });
+        }
+        for(MenuItem item : shapes){
+            item.setOnAction(event -> {
+                shapeGroup.selectToggle(shapeGroup.getToggles().get(0));
+
+            });
+        }
         draw.getItems().add(shapesMenu);
 
         MenuItem clear = new MenuItem("Clear Shapes");
@@ -285,7 +322,7 @@ public class DoodleView extends Application implements IObserver {
     @Override
     public void update(Observable observable, Object... arguments)
     {
-        unModifiableShapeList = controller.getShapes();
-        canvas.drawList(unModifiableShapeList);
+        unmodShapeList = controller.getShapes();
+        canvas.drawList(unmodShapeList);
     }
 }
