@@ -25,6 +25,10 @@ import java.util.List;
 
 import static view.DrawingFacade.ShapeType.*;
 
+/**
+ * @author Adrian Smith/Kyle Johnson
+ * @version 1
+ */
 public class DoodleView extends Application implements IObserver {
     public static final int WIN_WIDTH = 1000;
     public static final int WIN_HEIGHT = 600;
@@ -50,16 +54,14 @@ public class DoodleView extends Application implements IObserver {
     private Stage stage;
 
     @Override
-    public void start(Stage stage)
-    {
+    public void start(Stage stage) {
         this.stage = stage;
         stage.setTitle("Doodle Program");
         stage.setScene(getPrimaryScene());
         stage.show();
     }
 
-    private Scene getPrimaryScene()
-    {
+    private Scene getPrimaryScene() {
         BorderPane mainPanel = new BorderPane();
 
         VBox top = new VBox();
@@ -75,8 +77,7 @@ public class DoodleView extends Application implements IObserver {
         return scene;
     }
 
-    private Parent getToolbar()
-    {
+    private Parent getToolbar() {
         HBox panel = new HBox();
         panel.setId("toolbar-main");
         panel.getChildren().addAll(buildShapeSection(), buildSettings(), buildEdit());
@@ -84,8 +85,7 @@ public class DoodleView extends Application implements IObserver {
         return panel;
     }
 
-    private HBox buildShapeSection()
-    {
+    private HBox buildShapeSection() {
         HBox shapesPanel = new HBox();
         shapesPanel.setId("toolbar-shapes");
 
@@ -110,8 +110,7 @@ public class DoodleView extends Application implements IObserver {
         return shapesPanel;
     }
 
-    private HBox buildSettings()
-    {
+    private HBox buildSettings() {
         HBox settingsPanel = new HBox();
         settingsPanel.setId("toolbar-settings");
 
@@ -136,19 +135,16 @@ public class DoodleView extends Application implements IObserver {
         return settingsPanel;
     }
 
-    private void styleColorPicker(ColorPicker picker)
-    {
+    private void styleColorPicker(ColorPicker picker) {
         picker.getStyleClass().add(ColorPicker.STYLE_CLASS_BUTTON);
         picker.setValue(Color.BLACK);
     }
 
-    private int numToInt(Number value)
-    {
+    private int numToInt(Number value) {
         return (int) Math.floor(value.doubleValue());
     }
 
-    private HBox buildEdit()
-    {
+    private HBox buildEdit() {
         HBox editPanel = new HBox();
         editPanel.setId("toolbar-edits");
 
@@ -166,30 +162,26 @@ public class DoodleView extends Application implements IObserver {
         return editPanel;
     }
 
-    private ImageView getButtonIcon(String text)
-    {
+    private ImageView getButtonIcon(String text) {
         ImageView image = new ImageView(text + ".png");
         image.setFitHeight(SHAPE_ICON_SIZE);
         image.setFitWidth(SHAPE_ICON_SIZE);
         return image;
     }
 
-    private ToggleButton getImageToggleButton(String text)
-    {
+    private ToggleButton getImageToggleButton(String text) {
         ToggleButton result = new ToggleButton();
         result.setGraphic(getButtonIcon(text));
         return result;
     }
 
-    private Button getImageButton(String text)
-    {
+    private Button getImageButton(String text) {
         Button result = new Button();
         result.setGraphic(getButtonIcon(text));
         return result;
     }
 
-    private Parent getCanvas()
-    {
+    private Parent getCanvas() {
         VBox box = new VBox();
 
         canvas = new DrawingFacade();
@@ -216,8 +208,7 @@ public class DoodleView extends Application implements IObserver {
         return box;
     }
 
-    private void addEventsToCanvas()
-    {
+    private void addEventsToCanvas() {
         List<Point2D> points = new ArrayList<>();
 
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
@@ -243,7 +234,7 @@ public class DoodleView extends Application implements IObserver {
 
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
             List<Point2D> pointsClone = new ArrayList<>();
-            for(Point2D point : points){
+            for (Point2D point : points) {
                 pointsClone.add(new Point2D(point.getX(), point.getY()));
             }
 
@@ -254,8 +245,7 @@ public class DoodleView extends Application implements IObserver {
     }
 
 
-    private MenuBar buildMenu()
-    {
+    private MenuBar buildMenu() {
         MenuBar menuBar = new MenuBar();
         Menu file = new Menu("File");
         Menu edit = new Menu("Edit");
@@ -271,23 +261,20 @@ public class DoodleView extends Application implements IObserver {
         return menuBar;
     }
 
-    private void fileMenu(Menu file)
-    {
+    private void fileMenu(Menu file) {
         MenuItem[] items = {new MenuItem("Quit")};
         items[0].setOnAction(event -> stage.close());
         file.getItems().addAll(items);
     }
 
-    private void editMenu(Menu edit)
-    {
+    private void editMenu(Menu edit) {
         MenuItem[] items = {new MenuItem("Undo"), new MenuItem("Redo")};
         items[0].setOnAction(event -> controller.removeShape());
         items[1].setOnAction(event -> controller.redo());
         edit.getItems().addAll(items);
     }
 
-    private void drawMenu(Menu draw)
-    {
+    private void drawMenu(Menu draw) {
         Menu shapesMenu = new Menu("Shape Tools");
         ShapeType[] shapeTypes = {LINE, OVAL, RECTANGLE, SQUIGGLE};
         MenuItem[] shapes = {new MenuItem(LINE.toString()), new MenuItem(OVAL.toString()),
@@ -295,7 +282,7 @@ public class DoodleView extends Application implements IObserver {
         shapesMenu.getItems().addAll(shapes);
 
 
-        for(int i = 0; i < shapes.length; i++){
+        for (int i = 0; i < shapes.length; i++) {
             int finalI = i;
             shapes[i].setOnAction(event -> {
                 shapeGroup.selectToggle(shapeGroup.getToggles().get(finalI));
@@ -310,8 +297,7 @@ public class DoodleView extends Application implements IObserver {
         draw.getItems().add(clear);
     }
 
-    private void help(Menu about)
-    {
+    private void help(Menu about) {
         MenuItem[] items = {new MenuItem("About")};
         items[0].setOnAction(event -> {
             Stage dialog = new Stage();
@@ -327,8 +313,7 @@ public class DoodleView extends Application implements IObserver {
     }
 
     @Override
-    public void update(Observable observable, Object... arguments)
-    {
+    public void update(Observable observable, Object... arguments) {
         unmodShapeList = controller.getShapes();
         canvas.drawList(unmodShapeList);
     }

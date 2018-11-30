@@ -5,21 +5,22 @@ import model.Shape;
 
 import java.util.List;
 
+/**
+ * @author Adrian Smith/Kyle Johnson
+ * @version 1
+ */
 public class SquiggleFactory extends ShapeFactory {
-    public SquiggleFactory(DrawingFacade canvas)
-    {
+    public SquiggleFactory(DrawingFacade canvas) {
         super(canvas);
     }
 
     @Override
-    public void draw(Shape shape)
-    {
+    public void draw(Shape shape) {
         setDrawStyles(shape);
         drawSquiggle(shape.getPoints(), shape.isFilled());
     }
 
-    private void drawSquiggle(List<Point2D> points, boolean isFilled)
-    {
+    private void drawSquiggle(List<Point2D> points, boolean isFilled) {
         double[] x, y;
         x = new double[points.size()];
         y = new double[points.size()];
