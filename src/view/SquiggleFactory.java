@@ -10,6 +10,10 @@ import java.util.List;
  * @version 1
  */
 public class SquiggleFactory extends ShapeFactory {
+    /**
+     * Constructs a squiggle factory
+     * @param canvas that the factory is drawing to
+     */
     public SquiggleFactory(DrawingFacade canvas) {
         super(canvas);
     }
@@ -21,19 +25,19 @@ public class SquiggleFactory extends ShapeFactory {
     }
 
     private void drawSquiggle(List<Point2D> points, boolean isFilled) {
-        double[] x, y;
-        x = new double[points.size()];
-        y = new double[points.size()];
+        double[] xCoord, yCoord;
+        xCoord = new double[points.size()];
+        yCoord = new double[points.size()];
 
         for (int i = 0; i < points.size(); i++) {
             Point2D point = points.get(i);
-            x[i] = point.getX();
-            y[i] = point.getY();
+            xCoord[i] = point.getX();
+            yCoord[i] = point.getY();
         }
 
-        graphics.strokePolyline(x, y, points.size());
+        getGraphics().strokePolyline(xCoord, yCoord, points.size());
         if (isFilled) {
-            graphics.fillPolygon(x, y, points.size());
+            getGraphics().fillPolygon(xCoord, yCoord, points.size());
         }
     }
 }

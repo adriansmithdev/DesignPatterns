@@ -26,6 +26,7 @@ import java.util.List;
 import static view.DrawingFacade.ShapeType.*;
 
 /**
+ * Application window that allows drawing shapes
  * @author Adrian Smith/Kyle Johnson
  * @version 1
  */
@@ -35,6 +36,7 @@ public class DoodleView extends Application implements IObserver {
     public static final int SHAPE_ICON_SIZE = 20;
     public static final int MAX_STROKE = 20;
     public static final int MIN_STROKE = 1;
+    public static final int DIALOG_DIMENSION = 200;
 
     //drawing on the canvas
     private DrawingFacade canvas;
@@ -96,10 +98,7 @@ public class DoodleView extends Application implements IObserver {
         for (int i = 0; i < shapes.length; i++) {
             buttons[i] = getImageToggleButton(shapes[i].toString());
             int finalI = i;
-            buttons[i].setOnAction(event -> {
-                selectedShape = shapes[finalI];
-            });
-
+            buttons[i].setOnAction(event -> selectedShape = shapes[finalI]);
         }
 
         buttons[0].setSelected(true);
@@ -187,17 +186,13 @@ public class DoodleView extends Application implements IObserver {
         canvas = new DrawingFacade();
 
         canvas.init(box);
-        strokeColorPicker.setOnAction(event -> {
-            canvas.setStrokeColor(strokeColorPicker.getValue());
-        });
+        strokeColorPicker.setOnAction(event -> canvas.setStrokeColor(strokeColorPicker.getValue()));
 
-        fillColorPicker.setOnAction(event -> {
-            canvas.setFillColor(fillColorPicker.getValue());
-        });
+        fillColorPicker.setOnAction(event -> canvas.setFillColor(fillColorPicker.getValue()));
 
-        strokeSlider.valueProperty().addListener(((observable, oldValue, newValue) -> {
-            canvas.setLineWidth(newValue.intValue());
-        }));
+        strokeSlider.valueProperty().addListener(((observable, oldValue, newValue) ->
+                canvas.setLineWidth(newValue.intValue()))
+        );
 
         canvas.setLineWidth(strokeSlider.valueProperty().intValue());
 
@@ -304,7 +299,7 @@ public class DoodleView extends Application implements IObserver {
             VBox box = new VBox();
             Text text = new Text("Paint Program\n\n Adrian Smith\n Kyle Johnson");
             box.getChildren().add(text);
-            dialog.setScene(new Scene(box, 200, 200));
+            dialog.setScene(new Scene(box, DIALOG_DIMENSION, DIALOG_DIMENSION));
             dialog.initOwner(stage);
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.showAndWait();
@@ -316,5 +311,21 @@ public class DoodleView extends Application implements IObserver {
     public void update(Observable observable, Object... arguments) {
         unmodShapeList = controller.getShapes();
         canvas.drawList(unmodShapeList);
+    }
+
+    @Override
+    public String toString() {
+        return "DoodleView{" +
+                "canvas=" + canvas +
+                ", controller=" + controller +
+                ", unmodShapeList=" + unmodShapeList +
+                ", shapeGroup=" + shapeGroup +
+                ", selectedShape=" + selectedShape +
+                ", fillColorPicker=" + fillColorPicker +
+                ", strokeColorPicker=" + strokeColorPicker +
+                ", strokeSlider=" + strokeSlider +
+                ", filledCheckbox=" + filledCheckbox +
+                ", stage=" + stage +
+                '}';
     }
 }

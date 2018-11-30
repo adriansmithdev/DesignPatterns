@@ -6,10 +6,15 @@ import model.Shape;
 import java.util.List;
 
 /**
+ * Handles drawing rectangles
  * @author Adrian Smith/Kyle Johnson
  * @version 1
  */
 public class RectangleFactory extends ShapeFactory {
+    /**
+     * Constructs a rectangle factory
+     * @param canvas that the factory is drawing to
+     */
     public RectangleFactory(DrawingFacade canvas) {
         super(canvas);
     }
@@ -21,13 +26,13 @@ public class RectangleFactory extends ShapeFactory {
     }
 
     private void drawRectangle(List<Point2D> points, boolean isFilled) {
-        double x = Math.min(points.get(0).getX(), points.get(1).getX());
-        double y = Math.min(points.get(0).getY(), points.get(1).getY());
+        double xCoord = Math.min(points.get(0).getX(), points.get(1).getX());
+        double yCoord = Math.min(points.get(0).getY(), points.get(1).getY());
         double width = Math.abs(points.get(1).getX() - points.get(0).getX());
         double height = Math.abs(points.get(1).getY() - points.get(0).getY());
         if (isFilled) {
-            graphics.fillRect(x, y, width, height);
+            getGraphics().fillRect(xCoord, yCoord, width, height);
         }
-        graphics.strokeRect(x, y, width, height);
+        getGraphics().strokeRect(xCoord, yCoord, width, height);
     }
 }

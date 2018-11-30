@@ -6,10 +6,15 @@ import model.Shape;
 import java.util.List;
 
 /**
+ * Handles drawing single lines
  * @author Adrian Smith/Kyle Johnson
  * @version 1
  */
 public class LineFactory extends ShapeFactory {
+    /**
+     * Constructs a line factory
+     * @param canvas that the factory is drawing to
+     */
     public LineFactory(DrawingFacade canvas) {
         super(canvas);
     }
@@ -21,6 +26,6 @@ public class LineFactory extends ShapeFactory {
     }
 
     private void drawLine(List<Point2D> points) {
-        graphics.strokeLine(points.get(0).getX(), points.get(0).getY(), points.get(1).getX(), points.get(1).getY());
+        getGraphics().strokeLine(points.get(0).getX(), points.get(0).getY(), points.get(1).getX(), points.get(1).getY());
     }
 }

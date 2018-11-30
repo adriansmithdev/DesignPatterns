@@ -28,14 +28,6 @@ public abstract class Observable {
     }
 
     /**
-     * Removes an observer to no longer watch this observable
-     * @param observer to discontinue listening
-     */
-    public void removeObserver(IObserver observer) {
-        observers.remove(observer);
-    }
-
-    /**
      * Notifies all observers that a change has occurred
      * @param arguments type of change that occurred
      */
